@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>주역 점괘 생성기</title>
   <style>
     body {
@@ -21,86 +21,64 @@
       margin: 1rem 0;
       line-height: 2;
     }
-    .line {
-      font-size: 1.5rem;
-    }
     .changed {
       color: red;
+      font-weight: bold;
     }
     button {
-      font-size: 1rem;
-      padding: 0.5rem 1rem;
-      margin-top: 1.5rem;
-      cursor: pointer;
-    }
-    .name {
-      margin-top: 1rem;
       font-size: 1.2rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
   <h1>주역 점괘 생성기</h1>
-  <div class="hexagram" id="hexagram"></div>
-  <div class="name" id="hexagramName"></div>
-  <button onclick="generateHexagram()">점 보기</button>
+  <div class="hexagram" id="hexagram">점괘를 생성하려면 버튼을 누르세요.</div>
+  <button onclick="generateHexagram()">점괘 생성</button>
 
   <script>
-    const trigramNames = {
-      '111': '乾爲天',
-      '000': '坤爲地',
-      '101': '離爲火',
-      '010': '坎爲水',
-      '001': '震爲雷',
-      '100': '艮爲山',
-      '011': '巽爲風',
-      '110': '兌爲澤'
-    };
-
-    const hexagramNames = {
-      '䷀': '乾爲天', '䷁': '坤爲地', '䷝': '離爲火', '䷜': '坎爲水',
-      '䷲': '震爲雷', '䷳': '艮爲山', '䷸': '巽爲風', '䷹': '兌爲澤'
-      // 필요한 추가 괘명을 여기에 채워넣을 수 있음
-    };
-
-    const hexagramSymbols = [
-      '⚋', // 음효 (0)
-      '⚊'  // 양효 (1)
+    const hexagrams = [
+      "乾爲天", "坤爲地", "震爲雷", "巽爲風", "坎爲水", "離爲火", "艮爲山", "兌爲澤",
+      "水雷屯", "澤天夬", "天山遯", "澤地萃"
     ];
 
+    const lines = ["--- ---", "---------"]; // 음효, 양효
+
     function generateHexagram() {
-      const lines = [];
-      const changedLines = [];
+      let original = [];
+      let changed = [];
+
+      let changingLines = [];
+      for (let i = 0; i < 6; i++) {
+        const line = Math.random() < 0.5 ? 0 : 1;
+        original.push(line);
+      }
+
+      // 변효 0~6개 랜덤 지정
+      const changeCount = Math.floor(Math.random() * 7);
+      while (changingLines.length < changeCount) {
+        let idx = Math.floor(Math.random() * 6);
+        if (!changingLines.includes(idx)) {
+          changingLines.push(idx);
+        }
+      }
 
       for (let i = 0; i < 6; i++) {
-        let isYang = Math.random() < 0.5;
-        let changes = Math.random() < 0.33;
-        lines.push(isYang ? 1 : 0);
-        changedLines.push(changes ? 1 : 0);
-      }
-
-      displayHexagram(lines, changedLines);
-    }
-
-    function displayHexagram(lines, changedLines) {
-      const hexagramDiv = document.getElementById("hexagram");
-      const nameDiv = document.getElementById("hexagramName");
-      hexagramDiv.innerHTML = "";
-
-      for (let i = 5; i >= 0; i--) {
-        let symbol = hexagramSymbols[lines[i]];
-        if (changedLines[i]) {
-          symbol = `<span class="changed">${symbol}</span>`;
+        let lineStr = lines[original[i]];
+        if (changingLines.includes(i)) {
+          lineStr = `<span class="changed">${lineStr}</span>`;
         }
-        hexagramDiv.innerHTML += `<div class="line">${symbol}</div>`;
+        changed.push(lineStr);
       }
 
-      const upper = lines.slice(0, 3).reverse().join('');
-      const lower = lines.slice(3).reverse().join('');
-      const trigramKey = upper + lower;
-
-      const name = trigramNames[upper] + ' / ' + trigramNames[lower];
-      nameDiv.innerText = name || '';
+      const name = hexagrams[Math.floor(Math.random() * hexagrams.length)];
+      document.getElementById("hexagram").innerHTML =
+        `[${name}]<br>` + changed.reverse().join("<br>");
     }
   </script>
 </body>
