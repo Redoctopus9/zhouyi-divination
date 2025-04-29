@@ -1,84 +1,89 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>주역 점괘 생성기</title>
   <style>
     body {
-      font-family: 'Malgun Gothic', sans-serif;
-      background-color: #ffffff;
-      color: #000000;
+      background-color: white;
+      color: black;
+      font-family: '맑은 고딕', sans-serif;
+      padding: 2em;
       text-align: center;
-      padding: 2rem;
     }
     h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
+      font-size: 2em;
+      margin-bottom: 1em;
     }
-    .hexagram {
-      font-size: 2rem;
-      margin: 1rem 0;
-      line-height: 2;
+    .gua-container {
+      font-size: 3em;
+      margin: 1em 0;
+      line-height: 1.5em;
     }
     .changed {
       color: red;
-      font-weight: bold;
     }
     button {
-      font-size: 1.2rem;
-      padding: 0.5rem 1rem;
+      font-size: 1em;
+      padding: 0.5em 1.5em;
+      margin-top: 1.5em;
       cursor: pointer;
-      background-color: #000;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
+    }
+    .name {
+      font-size: 1.5em;
+      margin: 1em 0;
     }
   </style>
 </head>
 <body>
   <h1>주역 점괘 생성기</h1>
-  <div class="hexagram" id="hexagram">점괘를 생성하려면 버튼을 누르세요.</div>
-  <button onclick="generateHexagram()">점괘 생성</button>
+  <div class="name" id="gua-name"></div>
+  <div class="gua-container" id="gua-top"></div>
+  <div class="gua-container" id="gua-bottom"></div>
+  <button onclick="generateGua()">점괘 뽑기</button>
 
   <script>
-    const hexagrams = [
-      "乾爲天", "坤爲地", "震爲雷", "巽爲風", "坎爲水", "離爲火", "艮爲山", "兌爲澤",
-      "水雷屯", "澤天夬", "天山遯", "澤地萃"
+    const guaNames = [
+      "乾爲天", "坤爲地", "水雷屯", "山水蒙", "水天需", "天水訟", "地水師", "水地比",
+      "風天小畜", "天澤履", "地天泰", "天地否", "天火同人", "火天大有", "地山謙", "雷地豫",
+      "澤雷隨", "山風蠱", "地澤臨", "風地觀", "火雷噬嗑", "山火賁", "山地剝", "地雷復",
+      "天雷无妄", "山天大畜", "山雷頤", "澤風大過", "坎爲水", "離爲火", "澤山咸", "雷風恒",
+      "天山遯", "雷天大壯", "火地晉", "地火明夷", "風火家人", "火澤睽", "水山蹇", "雷水解",
+      "山澤損", "風雷益", "澤天夬", "天風姤", "澤地萃", "地風升", "澤水困", "水風井",
+      "澤火革", "火風鼎", "震爲雷", "艮爲山", "風山漸", "雷澤歸妹", "雷火豐", "火山旅",
+      "巽爲風", "兌爲澤", "風水渙", "水澤節", "風澤中孚", "雷山小過", "水火未濟", "火水既濟"
     ];
 
-    const lines = ["--- ---", "---------"]; // 음효, 양효
+    const lines = {
+      0: "⚋", // 음효
+      1: "⚊"  // 양효
+    };
 
-    function generateHexagram() {
-      let original = [];
-      let changed = [];
-
-      let changingLines = [];
-      for (let i = 0; i < 6; i++) {
-        const line = Math.random() < 0.5 ? 0 : 1;
-        original.push(line);
-      }
-
-      // 변효 0~6개 랜덤 지정
-      const changeCount = Math.floor(Math.random() * 7);
-      while (changingLines.length < changeCount) {
-        let idx = Math.floor(Math.random() * 6);
-        if (!changingLines.includes(idx)) {
-          changingLines.push(idx);
-        }
-      }
+    function generateGua() {
+      const top = [];
+      const bottom = [];
+      const changedLines = [];
 
       for (let i = 0; i < 6; i++) {
-        let lineStr = lines[original[i]];
-        if (changingLines.includes(i)) {
-          lineStr = `<span class="changed">${lineStr}</span>`;
-        }
-        changed.push(lineStr);
+        const isYang = Math.random() > 0.5;
+        const isChanging = Math.random() < 0.5;
+        const line = isYang ? 1 : 0;
+
+        changedLines[i] = isChanging;
+        (i < 3 ? bottom : top).push({ value: line, changing: isChanging });
       }
 
-      const name = hexagrams[Math.floor(Math.random() * hexagrams.length)];
-      document.getElementById("hexagram").innerHTML =
-        `[${name}]<br>` + changed.reverse().join("<br>");
+      const topStr = top.slice().reverse().map(l => `<span class="${l.changing ? 'changed' : ''}">${lines[l.value]}</span>`).join("<br>");
+      const bottomStr = bottom.slice().reverse().map(l => `<span class="${l.changing ? 'changed' : ''}">${lines[l.value]}</span>`).join("<br>");
+
+      const guaIndex = Math.floor(Math.random() * 64);
+      const guaName = guaNames[guaIndex];
+
+      document.getElementById("gua-top").innerHTML = topStr;
+      document.getElementById("gua-bottom").innerHTML = bottomStr;
+      document.getElementById("gua-name").innerText = guaName;
     }
   </script>
 </body>
